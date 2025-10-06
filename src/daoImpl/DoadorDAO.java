@@ -1,4 +1,4 @@
-package dao;
+package daoImpl;
 
 import config.DataBaseManager;
 import model.Doador;

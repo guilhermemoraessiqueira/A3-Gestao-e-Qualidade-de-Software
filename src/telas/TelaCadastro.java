@@ -1,5 +1,6 @@
 package telas;
 
+import controller.DoadorController;
 import service.DoadorService;
 import model.Doador;
 
@@ -11,14 +12,15 @@ import javax.swing.JOptionPane;
  */
 public class TelaCadastro extends javax.swing.JFrame {
 
-    // Troca pelo Service
-    //private DoadorDAO doadorDAO;
-    private DoadorService doadorService;
+    // ALTERAÇÃO — substitui chamadas diretas por um controller
+    private final DoadorController doadorController;
     
     public TelaCadastro() {
         initComponents();
         //doadorDAO = new DoadorDAO();
-        doadorService = new DoadorService();
+        //doadorService = new DoadorService();
+        this.doadorController = new DoadorController();
+
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -301,7 +303,8 @@ public class TelaCadastro extends javax.swing.JFrame {
             // Se o doador puder doar, criar um objeto Doador e inserir os dados no banco de dados
             Doador doador = new Doador(cpfDoador, idade, sexo, peso, nome);
             try {
-                doadorService.cadastrarDoador(doador);
+                //doadorService.cadastrarDoador(doador);
+                doadorController.cadastrarDoador(cpfDoador, idade, sexo, peso, nome);
                 JOptionPane.showMessageDialog(this, "Cadastro de doador realizado com sucesso!");
                 // Limpar os campos após o cadastro
                 limparCampos();

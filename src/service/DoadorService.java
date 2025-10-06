@@ -1,6 +1,6 @@
 package service;
 
-import dao.DoadorDAO;
+import daoImpl.DoadorDAO;
 import model.Doador;
 import repository.DoadorRepository;
 import java.util.List;
