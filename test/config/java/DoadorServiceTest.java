@@ -52,4 +52,22 @@ class DoadorServiceTest {
         // Teste só passa se a idade for válida
         assertTrue(idadeValida, "Idade do doador fora do intervalo permitido (17 a 100)");
     }
+
+    @Test
+    void deveCadastrarDoadorValido() {
+        // Arrange
+        Doador doador = new Doador("00111111111", 30, "M", 70.0, "Carlos");
+
+        // Act
+        boolean cadastroRealizado = false;
+        try {
+            doadorService.cadastrarDoador(doador);
+            cadastroRealizado = true;
+        } catch (Exception e) {
+            System.out.println("Erro ao cadastrar doador: " + e.getMessage());
+        }
+
+        // Assert
+        assertTrue(cadastroRealizado, "O doador válido não deveria gerar exceção ao ser cadastrado.");
+    }
 }
