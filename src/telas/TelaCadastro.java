@@ -1,5 +1,10 @@
 package telas;
 
+import controller.DoadorController;
+import daoImpl.DoadorDAO;
+import service.DoadorService;
+import model.Doador;
+
 import javax.swing.JOptionPane;
 
 /**
@@ -7,12 +12,12 @@ import javax.swing.JOptionPane;
  * @author João Vitor
  */
 public class TelaCadastro extends javax.swing.JFrame {
-    
-    private DoadorDAO doadorDAO;
-    
-    public TelaCadastro() {
+
+    private final DoadorController doadorController;
+
+    public TelaCadastro(DoadorController doadorController) {
         initComponents();
-        doadorDAO = new DoadorDAO();
+        this.doadorController = doadorController;
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -264,44 +269,29 @@ public class TelaCadastro extends javax.swing.JFrame {
         String sexo = jTextField3.getText().toUpperCase();
         int idade;
         double peso;
-        
+
         // Verificando se peso e idade são números válidos
         try {
             idade = Integer.parseInt(jTextField8.getText());
             peso = Double.parseDouble(jTextField4.getText());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Idade e peso devem ser números válidos.", "Atenção", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Idade e peso devem ser números válidos.", "Atenção", JOptionPane.WARNING_MESSAGE);
             return;
-            }
+        }
 
-        // Verificando se o doador pode doar
-        if (idade < 16) {
-            JOptionPane.showMessageDialog(null, "O voluntário não pode doar se for menor que 16 anos.", "Atenção", JOptionPane.WARNING_MESSAGE);
-        return;
-        }
-        if (idade > 69) {
-            JOptionPane.showMessageDialog(null, "O voluntário não pode doar se for maior que 69 anos.", "Atenção", JOptionPane.WARNING_MESSAGE);
-        return;
-        }
-        if (peso < 50) {
-            JOptionPane.showMessageDialog(null, "O voluntário não pode doar se pesar menos que 50Kg.", "Atenção", JOptionPane.WARNING_MESSAGE); 
-        return;
-        }        
-        if (cpfDoador.length() != 11) {
-            JOptionPane.showMessageDialog(null, "O CPF deve conter 11 dígitos", "Atenção", JOptionPane.WARNING_MESSAGE); 
-        } 
-        else {
-            
-            // Se o doador puder doar, criar um objeto Doador e inserir os dados no banco de dados
-            Doador doador = new Doador(cpfDoador, String.valueOf(idade), sexo, String.valueOf(peso), nome);
-            try {
-                doadorDAO.adicionarDoador(doador);
-                JOptionPane.showMessageDialog(this, "Cadastro de doador realizado com sucesso!");
-                // Limpar os campos após o cadastro
-                limparCampos();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao cadastrar doador: " + ex.getMessage());
-            }
+        try {
+            // Cadastra o doador usando o service (já faz validação)
+            doadorController.cadastrarDoador(cpfDoador, idade, sexo, peso, nome);
+
+            // Se chegou aqui, cadastro foi bem-sucedido
+            JOptionPane.showMessageDialog(this, "Cadastro de doador realizado com sucesso!");
+            limparCampos();
+        } catch (IllegalArgumentException ex) {
+            // Captura erros de validação do service
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Atenção", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception ex) {
+            // Captura erros inesperados
+            JOptionPane.showMessageDialog(this, "Erro ao cadastrar doador: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -318,7 +308,7 @@ public class TelaCadastro extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField4ActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
-        TelaInicial telaInicial = new TelaInicial();
+        TelaInicial telaInicial = new TelaInicial(doadorController);
                 telaInicial.setVisible(true);
                 dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
@@ -336,6 +326,12 @@ public class TelaCadastro extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+
+        // Inicializando MVC
+        DoadorDAO dao = new DoadorDAO();
+        DoadorService service = new DoadorService(dao);
+        DoadorController controller = new DoadorController(service);
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -357,7 +353,7 @@ public class TelaCadastro extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaCadastro().setVisible(true);
+                new TelaCadastro(controller).setVisible(true);
             }
         });
     }
